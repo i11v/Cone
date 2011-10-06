@@ -8,7 +8,7 @@ int main() {
 	double solidHalfSpaceFriction = 100; 
 	double solidHalfSpaceStrength = 100; 
 
-	spaceIndenter cone(solidHalfSpaceDensity,
+	SpaceIndenter cone(solidHalfSpaceDensity,
 		solidHalfSpaceCoefficient,
 		solidHalfSpaceFriction,
 		solidHalfSpaceStrength,

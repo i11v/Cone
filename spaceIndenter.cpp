@@ -2,7 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-spaceIndenter::spaceIndenter(double _density, double _coefficient, double _friction, double _strength, double _mass, double _initialSpeed) {
+SpaceIndenter::SpaceIndenter(double _density, double _coefficient, double _friction, double _strength, double _mass, double _initialSpeed) {
 	density0 = _density;
 	coefficient0 = _coefficient;
 	friction0 = _friction;
@@ -11,46 +11,46 @@ spaceIndenter::spaceIndenter(double _density, double _coefficient, double _frict
 	initialSpeed = _initialSpeed;
 }
 
-spaceIndenter::~spaceIndenter() {};
+SpaceIndenter::~SpaceIndenter() {};
 
-double spaceIndenter::density(double x) {
+double SpaceIndenter::density(double x) {
 	return density0;
 };
 
-double spaceIndenter::coefficient(double x) {
+double SpaceIndenter::coefficient(double x) {
 	return coefficient0;
 };
 
-double spaceIndenter::friction(double x) {
+double SpaceIndenter::friction(double x) {
 	return friction0;
 };
 
-double spaceIndenter::strength(double x) {
+double SpaceIndenter::strength(double x) {
 	return strength0;
 };
 
-double spaceIndenter::f1(double x) {
+double SpaceIndenter::f1(double x) {
 	double z;
-	double k = spaceIndenter::coefficient(0);
-	double ro = spaceIndenter::density(0);
+	double k = SpaceIndenter::coefficient(0);
+	double ro = SpaceIndenter::density(0);
 	double alpha = M_PI / 4;
 
 	return k * ro * tan(alpha) * surface(x);
 };
 
-double spaceIndenter::f2(double x) { // ћетод численного интегрировани€ формулы формулы (sigma0*Tan[alpha]+tau*Surface[z])
+double SpaceIndenter::f2(double x) { // ћетод численного интегрировани€ формулы формулы (sigma0*Tan[alpha]+tau*Surface[z])
 	return x;
 }
 
-double spaceIndenter::func(double x, double y) {
+double SpaceIndenter::func(double x, double y) {
 		return -4 * M_PI * f1(x) * y / mass - 4 * M_PI * f2(x) / mass;
 }
 
-double spaceIndenter::solve(double x_n) {
+double SpaceIndenter::solve(double x_n) {
 	return 0;
 };
 
-double spaceIndenter::surface(double z) {
+double SpaceIndenter::surface(double z) {
 	double c = 1.0;
 
 	return c * z;

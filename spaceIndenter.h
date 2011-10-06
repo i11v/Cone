@@ -4,7 +4,7 @@
  * +решить задачу для конуса
  * 
  */
-class spaceIndenter {
+class SpaceIndenter {
 private:
 	double density0; // плотность среды
 	double coefficient0; // коэфициент k из эмпирической формулы
@@ -14,8 +14,8 @@ private:
 	double mass; // масса ударника
 	double initialSpeed; // начальная скорость
 public:
-	spaceIndenter(double, double, double, double, double, double);
-	~spaceIndenter();
+	SpaceIndenter(double, double, double, double, double, double);
+	~SpaceIndenter();
 	double density(double); 
 	double coefficient(double); 
 	double friction(double); 
