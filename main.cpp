@@ -1,4 +1,4 @@
-#include "cone.h"
+#include "spaceIndenter.h"
 
 int main() {
 	double conicalIndenterWeight = 100;
@@ -8,7 +8,7 @@ int main() {
 	double solidHalfSpaceFriction = 100; 
 	double solidHalfSpaceStrength = 100; 
 
-	Cone cone(solidHalfSpaceDensity,
+	spaceIndenter cone(solidHalfSpaceDensity,
 		solidHalfSpaceCoefficient,
 		solidHalfSpaceFriction,
 		solidHalfSpaceStrength,
