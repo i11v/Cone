@@ -17,7 +17,8 @@ double df(double); // производная уравнения поверхности
 double k(double); // эмпирический коэффициент
 double F1(double); // интеграл
 double F2(double); // интеграл
-double g(double, double); // правая часть дифф. уравнения
+double integrate(double (*func)(double), double, double); // реализация метода Симпсона
+double g(double); // правая часть дифф. уравнения
 double euler(double, double, double, double); // решение дифф. уравнения проникновения ударника
 
 int main(int argc, char **argv) {
@@ -72,45 +73,25 @@ double F2(double x) {
 	return 1;
 }
 
-double g(double x, double y) {
-	return -F1(x) - F2(x);
+double integrate(double (*func)(double), double a, double b) {
+	double dx, x;
+	double s = 0.0;
+	int n = 100;
+
+	dx = (b - a) / static_cast<double>(n);
+	for (int i = 2; i <= n - 1; i = i + 2) {
+		x = a + static_cast<double>(i) * dx;
+		s = s + 2.0 * func(x) + 4.0 * func(x + dx);
+    }
+	s = (s + func(a) + func(b) + 4.0 * func(a + dx) ) * dx / 3.0;
+	
+	return s;
+}
+
+double g(double x) {
+	return -(4 * M_PI / weight) * integrate(&F1, 0, x) - (4 * M_PI / weight) * integrate(&F2, 0, x);
 }
 
 double euler(double x0, double y0, double e, double h) {
-	double y[1000], 
-		y_inci[1000], 
-		x[1000];
-	int k = 0;
-	int i = 0;
-
-	y[0] = y0; 
-	x[0] = x0;
-	std::cout << std::endl
-		<< "i" << "	"
-		<< "x" << "	"
-		<< "y" << "		"
-		<< "y'(x) = F1(x)y(x) + F2(x) " 
-		<< std::endl;
-
-	while (x[i] <= (x0 + 1)) {
-		std::cout << i * h << "	"
-			<< x[i] << "	"
-			<< y[i] << "		"
-			<< g(x[i], y[i]) << std::endl;
-		
-		x[i + 1] = x[i] + h;
-		y[i + 1] = y[i] + h * g(x[i], y[i]);
-		y_inci[0] = y[i] + h * g(x[i], y[i]);
-
-		k = 0;
-		do {
-			k++;
-			y_inci[k] = y[i] + h / 2 * g(x[i + 1], y_inci[k - 1]);
-		} while (fabs(y_inci[k] - y_inci[k - 1]) > e); 
-
-		y[i + 1] = y_inci[k];
-		i++;
-	}
-
-	return g(x[i], y[i]);
+	return 0;
 }
