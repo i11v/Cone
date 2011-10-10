@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <fstream>
 
+using namespace std;
+
 double density0; // плотность среды
 double strength0; // сопротивление
 double friction0; // трение среды
@@ -17,9 +19,10 @@ double df(double); // производная уравнения поверхности
 double k(double); // эмпирический коэффициент
 double F1(double); // интеграл
 double F2(double); // интеграл
-double integrate(double (*func)(double), double, double); // реализация метода Симпсона
-double g(double); // правая часть дифф. уравнения
-double euler(double, double, double, double); // решение дифф. уравнения проникновения ударника
+double integrate(double (*)(double), double, double); // реализация метода Симпсона
+double g(double, double); // правая часть дифф. уравнения
+double euler(double (*)(double, double), double, double, double); // реализация метода Эйлера
+double solve(); // решение дифф. уравнения проникновения ударника
 
 int main(int argc, char **argv) {
 	double conicalIndenterWeight = 0.001 / 981;
@@ -34,7 +37,17 @@ int main(int argc, char **argv) {
 	weight = conicalIndenterWeight;
 	initialSpeed = conicalIndenterInitialSpeed;
 	
-	std::cin.get();
+	ofstream file;
+    file.open ("spaceIndenter.dat");
+    file.precision(6);
+    file.setf(ios::fixed | ios::showpoint);
+    cout.precision(6);
+    cout.setf(ios::fixed | ios::showpoint);
+
+	cout << integrate(&F2, 0, 1) << endl;
+
+	file.close();
+	system("pause");
 
 	return 0;
 }
@@ -66,21 +79,21 @@ double k(double z) {
 }
 
 double F1(double x) {
-	return 1;
+	return k(x) * df(x) * f(x);
 }
 
 double F2(double x) {
-	return 1;
+	return (strength0 * df(x) + friction0) * f(x);
 }
 
 double integrate(double (*func)(double), double a, double b) {
 	double dx, x;
 	double s = 0.0;
-	int n = 100;
+	int n = 1000;
 
-	dx = (b - a) / static_cast<double>(n);
+	dx = (b - a) / n;
 	for (int i = 2; i <= n - 1; i = i + 2) {
-		x = a + static_cast<double>(i) * dx;
+		x = a + i * dx;
 		s = s + 2.0 * func(x) + 4.0 * func(x + dx);
     }
 	s = (s + func(a) + func(b) + 4.0 * func(a + dx) ) * dx / 3.0;
@@ -88,10 +101,33 @@ double integrate(double (*func)(double), double a, double b) {
 	return s;
 }
 
-double g(double x) {
-	return -(4 * M_PI / weight) * integrate(&F1, 0, x) - (4 * M_PI / weight) * integrate(&F2, 0, x);
+double g(double x, double y) {
+	return -(4 * M_PI / weight) * density0 * integrate(&F1, 0, x) * y - (4 * M_PI / weight) * integrate(&F2, 0, x);
 }
 
-double euler(double x0, double y0, double e, double h) {
+double euler(double (*eq)(double, double), double x0, double y0, double xf) {
+	double yf;
+	
+	yf = y0 + eq(x0, y0) * (xf - x0);
+	xf = y0 + (eq(x0, y0) + eq(xf, yf)) * 0.5 * (xf - x0);
+	
+	return xf;
+}
+
+double solve() {
+	double xf, yf;
+	double x0 = 0.0;
+	double y0 = pow(initialSpeed, 2);
+	double dx = 0.01;
+	double xmax = 0.2;
+
+	while (x0 <= xmax) {
+		xf = x0 + dx;
+		yf = euler(g, x0, y0, xf);
+		cout << setw(12) << xf << setw(12) << yf << endl;
+		x0 = xf;
+		y0 = yf;
+	}
+
 	return 0;
 }
