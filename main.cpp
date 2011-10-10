@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
     cout.setf(ios::fixed | ios::showpoint);
 
 	cout << "Working" << endl;
-	cout << solve(file) << endl;
+	solve(file);
 
 	file.close();
 	//system("pause");
@@ -99,7 +99,7 @@ double f2(double x) {
 }
 
 double force(double x, double y) {
-	return -2 * M_PI * ((strength0 + k(x) * density(x) * y) * integrate(f1, 0, x) + friction(x) * integrate(f2, 0, x));
+	return 2 * M_PI * ((strength0 + k(x) * density(x) * y) * integrate(f1, 0, x) + friction(x) * integrate(f2, 0, x));
 }
 
 double integrate(double (*func)(double), double a, double b) {
@@ -149,7 +149,7 @@ double solve(ofstream &fout) {
 			break;
 		}
 //		cout << setw(12) << xf << setw(24) << sqrt(yf) << endl;
-		fout << setw(12) << xf << setw(12) << sqrt(yf) << setw(12) << force(xf, yf) << endl;
+		fout << setw(12) << xf << setw(18) << sqrt(yf) << setw(12) << force(xf, yf) << endl;
 		x0 = xf;
 		y0 = yf;
 	}
