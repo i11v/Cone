@@ -24,9 +24,10 @@ double f2(double); // подынтегральная функция
 double force(double, double); // сила
 double t(double, double); // время
 double integrate(double (*)(double), double, double); // реализация метода Симпсона
+double test(double, double);
 double g(double, double); // правая часть дифф. уравнения
 double euler(double (*)(double, double), double, double, double); // реализация метода Эйлера
-double solve(ofstream&); // решение дифф. уравнения проникновения ударника
+double solve(double (*)(double, double), double, ofstream&); // решение дифф. уравнения проникновения ударника
 
 int main(int argc, char **argv) {
 	double conicalIndenterWeight = 0.001 / 981;
@@ -50,7 +51,7 @@ int main(int argc, char **argv) {
     cout.setf(ios::fixed | ios::showpoint);
 
 	cout << "Working" << endl;
-	solve(file);
+	solve(test, 0.001, file);
 
 	file.close();
 //	system("pause");
@@ -140,18 +141,18 @@ double euler(double (*eq)(double, double), double x0, double y0, double xf) {
 	return yf;
 }
 
-double solve(ofstream &fout) {
+double solve(double (*func)(double, double), double step, ofstream &fout) {
 	double xk, yk, tk;
 	double x0 = 0.0;
 	double t0 = 0.0;
 	double y0 = pow(initialSpeed, 2);
-	double dx = 0.0001;
+	double dx = step;
 	double ymin = 0.0;
 
 	while (y0 > ymin) {
 				xk = x0 + dx;
-		if (euler(test, x0, y0, xk) >= 0) {
-			yk = euler(test, x0, y0, xk);
+		if (euler(func, x0, y0, xk) >= 0) {
+			yk = euler(func, x0, y0, xk);
 		} else {
 			break;
 		}
