@@ -22,6 +22,7 @@ double F2(double); // подынтегральная функция
 double f1(double); // подынтегральная функция
 double f2(double); // подынтегральная функция
 double force(double, double); // сила
+double t(double, double); // время
 double integrate(double (*)(double), double, double); // реализация метода Симпсона
 double g(double, double); // правая часть дифф. уравнения
 double euler(double (*)(double, double), double, double, double); // реализация метода Эйлера
@@ -31,7 +32,8 @@ int main(int argc, char **argv) {
 	double conicalIndenterWeight = 0.001 / 981;
 	double conicalIndenterInitialSpeed = 30000;
 	double solidHalfSpaceDensity = 0.0027 / 981;
-	double solidHalfSpaceFriction = 200; 
+	double solidHalfSpaceFriction = 0; 
+//	double solidHalfSpaceFriction = 200; 
 	double solidHalfSpaceStrength = 1000;
 
 	density0 = solidHalfSpaceDensity;
@@ -51,7 +53,7 @@ int main(int argc, char **argv) {
 	solve(file);
 
 	file.close();
-	//system("pause");
+//	system("pause");
 
 	return 0;
 }
@@ -69,7 +71,7 @@ double friction(double z) {
 }
 
 double f(double z) {
-	return z;
+	return 1 * z;
 }
 
 double df(double z) {
@@ -102,6 +104,10 @@ double force(double x, double y) {
 	return 2 * M_PI * ((strength0 + k(x) * density(x) * y) * integrate(f1, 0, x) + friction(x) * integrate(f2, 0, x));
 }
 
+double t(double t0, double dx, double v) {
+	return t0 + dx / v;
+}
+
 double integrate(double (*func)(double), double a, double b) {
 	double dx, x;
 	double s = 0.0;
@@ -122,7 +128,7 @@ double g(double x, double y) {
 }
 
 double test(double x, double y) {
-	return -(4 * M_PI / weight) * density0 * 0.25 * x * x * y - (4 * M_PI / weight) * 600 * x * x;
+	return -1 * y - 1;
 }
 
 double euler(double (*eq)(double, double), double x0, double y0, double xf) {
@@ -135,24 +141,41 @@ double euler(double (*eq)(double, double), double x0, double y0, double xf) {
 }
 
 double solve(ofstream &fout) {
-	double xf, yf;
+	double xk, yk, tk;
 	double x0 = 0.0;
+	double t0 = 0.0;
 	double y0 = pow(initialSpeed, 2);
 	double dx = 0.0001;
 	double ymin = 0.0;
 
 	while (y0 > ymin) {
-		xf = x0 + dx;
-		if (euler(g, x0, y0, xf) >= 0) {
-			yf = euler(g, x0, y0, xf);
+				xk = x0 + dx;
+		if (euler(test, x0, y0, xk) >= 0) {
+			yk = euler(test, x0, y0, xk);
 		} else {
 			break;
 		}
-//		cout << setw(12) << xf << setw(24) << sqrt(yf) << endl;
-		fout << setw(12) << xf << setw(18) << sqrt(yf) << setw(12) << force(xf, yf) << endl;
-		x0 = xf;
-		y0 = yf;
-	}
+		tk = t(t0, dx, sqrt(yk));
 
-	return yf;
+		fout << setw(12) << xk << setw(18) << yk << endl;
+		x0 = xk;
+		y0 = yk;
+		t0 = tk;
+	}
+//	while (y0 > ymin) {
+//		xk = x0 + dx;
+//		if (euler(g, x0, y0, xk) >= 0) {
+//			yk = euler(g, x0, y0, xk);
+//		} else {
+//			break;
+//		}
+//		tk = t(t0, dx, sqrt(yk));
+//
+//		fout << setw(12) << xk << setw(18) << sqrt(yk) << setw(18) << force(xk, yk) << endl;
+//		x0 = xk;
+//		y0 = yk;
+//		t0 = tk;
+//	}
+
+	return yk;
 }
