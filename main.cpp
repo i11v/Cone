@@ -1,4 +1,5 @@
 #define _USE_MATH_DEFINES
+#include <cmath>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -10,6 +11,7 @@ double strength0; // сопротивление
 double friction0; // трение среды
 double weight; // масса ударника
 double initialSpeed; // начальная скорость ударника
+double alpha; 
 
 double density(double); // плотность среды в зависимости от глубины погружения
 double strength(double); // сопротивление
@@ -36,12 +38,14 @@ int main(int argc, char **argv) {
 	double solidHalfSpaceFriction = 0; 
 //	double solidHalfSpaceFriction = 200; 
 	double solidHalfSpaceStrength = 1000;
+	double initialAngle = M_PI / 4;
 
 	density0 = solidHalfSpaceDensity;
 	strength0 = solidHalfSpaceStrength;
 	friction0 = solidHalfSpaceFriction;
 	weight = conicalIndenterWeight;
 	initialSpeed = conicalIndenterInitialSpeed;
+	alpha = initialAngle;
 	
 	ofstream file;
     file.open ("spaceIndenter.dat");
@@ -51,10 +55,14 @@ int main(int argc, char **argv) {
     cout.setf(ios::fixed | ios::showpoint);
 
 	cout << "Working" << endl;
-	solve(test, 0.001, file);
+	
+	//cout << k(0.5) << "	" << df(0.5) << "	" << f(0.5) << endl;
+	//cout << F1(0.5) << endl;
+	//cout << integrate(F1, 0, 0.5) << endl;
+	solve(g, 0.0001, file);
 
 	file.close();
-//	system("pause");
+	system("pause");
 
 	return 0;
 }
@@ -72,7 +80,7 @@ double friction(double z) {
 }
 
 double f(double z) {
-	return 1 * z;
+	return tan(alpha) * z;
 }
 
 double df(double z) {
@@ -82,15 +90,15 @@ double df(double z) {
 }
 
 double k(double z) {
-	return pow(sin(atan(df(z))), 2);
+	return pow(sin(alpha), 2);
 }
 
 double F1(double x) {
-	return k(x) * df(x) * f(x);
+	return (k(x) * density0 * tan(alpha) * f(x));
 }
 
 double F2(double x) {
-	return (strength0 * df(x) + friction0) * f(x);
+	return (strength0 * tan(alpha) + friction0) * f(x);
 }
 
 double f1(double x) {
@@ -125,11 +133,11 @@ double integrate(double (*func)(double), double a, double b) {
 }
 
 double g(double x, double y) {
-	return -(4 * M_PI / weight) * density0 * integrate(&F1, 0, x) * y - (4 * M_PI / weight) * integrate(&F2, 0, x);
+	return -(4 * M_PI / weight) * integrate(F1, 0, x) * y - (4 * M_PI / weight) * integrate(F2, 0, x);
 }
 
 double test(double x, double y) {
-	return -1 * y - 1;
+	return -100 * y - 100;
 }
 
 double euler(double (*eq)(double, double), double x0, double y0, double xf) {
@@ -150,7 +158,7 @@ double solve(double (*func)(double, double), double step, ofstream &fout) {
 	double ymin = 0.0;
 
 	while (y0 > ymin) {
-				xk = x0 + dx;
+		xk = x0 + dx;
 		if (euler(func, x0, y0, xk) >= 0) {
 			yk = euler(func, x0, y0, xk);
 		} else {
@@ -158,25 +166,18 @@ double solve(double (*func)(double, double), double step, ofstream &fout) {
 		}
 		tk = t(t0, dx, sqrt(yk));
 
-		fout << setw(12) << xk << setw(18) << yk << endl;
+		fout << setw(12) << xk 
+			<< setw(18) << sqrt(yk) 
+			<< setw(18) << force(xk, yk) 
+			<< endl;
+		cout << setw(12) << xk 
+			<< setw(18) << sqrt(yk) 
+			<< setw(18) << force(xk, yk) 
+			<< endl;
 		x0 = xk;
 		y0 = yk;
 		t0 = tk;
 	}
-//	while (y0 > ymin) {
-//		xk = x0 + dx;
-//		if (euler(g, x0, y0, xk) >= 0) {
-//			yk = euler(g, x0, y0, xk);
-//		} else {
-//			break;
-//		}
-//		tk = t(t0, dx, sqrt(yk));
-//
-//		fout << setw(12) << xk << setw(18) << sqrt(yk) << setw(18) << force(xk, yk) << endl;
-//		x0 = xk;
-//		y0 = yk;
-//		t0 = tk;
-//	}
 
 	return yk;
 }
