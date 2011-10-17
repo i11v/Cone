@@ -24,18 +24,18 @@ double F2(double); // подынтегральная функция
 double f1(double); // подынтегральная функция
 double f2(double); // подынтегральная функция
 double force(double, double); // сила
-double t(double, double); // время
+double t(double, double, double); // время
 double integrate(double (*)(double), double, double); // реализация метода Симпсона
 double test(double, double);
 double g(double, double); // правая часть дифф. уравнения
 double euler(double (*)(double, double), double, double, double); // реализация метода Эйлера
-double solve(double (*)(double, double), double, ofstream&); // решение дифф. уравнения проникновения ударника
+double solve(double (*)(double, double), double, ofstream&, ofstream&); // решение дифф. уравнения проникновения ударника
 
 int main(int argc, char **argv) {
 	double conicalIndenterWeight = 0.001 / 981;
 	double conicalIndenterInitialSpeed = 30000;
 	double solidHalfSpaceDensity = 0.0027 / 981;
-	double solidHalfSpaceFriction = 0; 
+	double solidHalfSpaceFriction = 200; 
 //	double solidHalfSpaceFriction = 200; 
 	double solidHalfSpaceStrength = 1000;
 	double initialAngle = M_PI / 4;
@@ -47,11 +47,13 @@ int main(int argc, char **argv) {
 	initialSpeed = conicalIndenterInitialSpeed;
 	alpha = initialAngle;
 	
-	ofstream file;
-    file.open ("spaceIndenter.dat");
-    file.precision(6);
-    file.setf(ios::fixed | ios::showpoint);
-    cout.precision(6);
+	ofstream fileX, fileT;
+    fileX.open ("spaceIndenterX.dat");
+    fileT.open ("spaceIndenterT.dat");
+    fileX.precision(6);
+    fileX.setf(ios::fixed | ios::showpoint);
+    fileT.precision(8);
+    fileT.setf(ios::fixed | ios::showpoint);cout.precision(6);
     cout.setf(ios::fixed | ios::showpoint);
 
 	cout << "Working" << endl;
@@ -59,9 +61,10 @@ int main(int argc, char **argv) {
 	//cout << k(0.5) << "	" << df(0.5) << "	" << f(0.5) << endl;
 	//cout << F1(0.5) << endl;
 	//cout << integrate(F1, 0, 0.5) << endl;
-	solve(g, 0.0001, file);
+	solve(g, 0.0001, fileX, fileT);
 
-	file.close();
+	fileX.close();
+	fileT.close();
 	system("pause");
 
 	return 0;
@@ -102,7 +105,7 @@ double F2(double x) {
 }
 
 double f1(double x) {
-	return df(x) * f(x);
+	return tan(alpha) * f(x);
 }
 
 double f2(double x) {
@@ -149,7 +152,7 @@ double euler(double (*eq)(double, double), double x0, double y0, double xf) {
 	return yf;
 }
 
-double solve(double (*func)(double, double), double step, ofstream &fout) {
+double solve(double (*func)(double, double), double step, ofstream &xout, ofstream &tout) {
 	double xk, yk, tk;
 	double x0 = 0.0;
 	double t0 = 0.0;
@@ -159,21 +162,29 @@ double solve(double (*func)(double, double), double step, ofstream &fout) {
 
 	while (y0 > ymin) {
 		xk = x0 + dx;
+		tk = t(t0, dx, sqrt(y0));
+
 		if (euler(func, x0, y0, xk) >= 0) {
 			yk = euler(func, x0, y0, xk);
 		} else {
 			break;
 		}
-		tk = t(t0, dx, sqrt(yk));
 
-		fout << setw(12) << xk 
+		xout << setw(12) << xk 
+//			<< setw(12) << tk
 			<< setw(18) << sqrt(yk) 
 			<< setw(18) << force(xk, yk) 
 			<< endl;
-		cout << setw(12) << xk 
+		tout << setw(12) << tk
 			<< setw(18) << sqrt(yk) 
 			<< setw(18) << force(xk, yk) 
 			<< endl;
+		cout << setw(12) << xk
+			<< setw(12) << tk
+			<< setw(18) << sqrt(yk) 
+			<< setw(18) << force(xk, yk) 
+			<< endl;
+		
 		x0 = xk;
 		y0 = yk;
 		t0 = tk;
