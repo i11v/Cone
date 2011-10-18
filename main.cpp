@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 	double solidHalfSpaceFriction = 200; 
 //	double solidHalfSpaceFriction = 200; 
 	double solidHalfSpaceStrength = 1000;
-	double initialAngle = M_PI / 4;
+	double initialAngle = M_PI / 6;
 
 	density0 = solidHalfSpaceDensity;
 	strength0 = solidHalfSpaceStrength;
